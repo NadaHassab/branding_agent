@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Agent System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Brand Agent System</h1>
+            <p>AI-Powered Brand Strategy & Identity Creation</p>
+        </header>
+
+        <div class="brief-form">
+            <h2>Create Your Brand Strategy</h2>
+            <form id="briefForm">
+                <div class="form-group">
+                    <label for="company_name">Company Name *</label>
+                    <input type="text" id="company_name" name="company_name" required 
+                           placeholder="e.g., EcoFresh">
+                </div>
+
+                <div class="form-group">
+                    <label for="industry">Industry *</label>
+                    <input type="text" id="industry" name="industry" required 
+                           placeholder="e.g., Food Delivery, Tech, Fashion">
+                </div>
+
+                <div class="form-group">
+                    <label for="target_audience">Target Audience *</label>
+                    <input type="text" id="target_audience" name="target_audience" required 
+                           placeholder="e.g., Urban millennials, eco-conscious">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="brand_type">Brand Type *</label>
+                        <select id="brand_type" name="brand_type" required>
+                            <option value="new">New Brand</option>
+                            <option value="rebrand">Rebrand</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="budget_tier">Budget Tier *</label>
+                        <select id="budget_tier" name="budget_tier" required>
+                            <option value="basic">Basic</option>
+                            <option value="premium" selected>Premium</option>
+                            <option value="enterprise">Enterprise</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="core_values">Core Values (comma-separated) *</label>
+                    <input type="text" id="core_values" name="core_values" required 
+                           placeholder="e.g., Sustainability, Transparency, Innovation">
+                </div>
+
+                <div class="form-group">
+                    <label for="mission_statement">Mission Statement *</label>
+                    <textarea id="mission_statement" name="mission_statement" required 
+                              placeholder="e.g., To make sustainable eating accessible to everyone." rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🚀 Start Brand Creation
+                </button>
+            </form>
+        </div>
+
+        <div id="loadingMessage" class="loading-message" style="display: none;">
+            <div class="spinner"></div>
+            <p>Initializing your brand strategy workflow...</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('briefForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingMsg = document.getElementById('loadingMessage');
+            
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating...';
+            loadingMsg.style.display = 'block';
+            
+            // Collect form data
+            const formData = {
+                company_name: document.getElementById('company_name').value,
+                industry: document.getElementById('industry').value,
+                target_audience: document.getElementById('target_audience').value,
+                brand_type: document.getElementById('brand_type').value,
+                budget_tier: document.getElementById('budget_tier').value,
+                core_values: document.getElementById('core_values').value,
+                mission_statement: document.getElementById('mission_statement').value
+            };
+            
+            try {
+                const response = await fetch('/start_workflow', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Redirect to workflow page
+                    window.location.href = `/workflow/${result.workflow_id}`;
+                } else {
+                    alert('Error: ' + result.error);
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '🚀 Start Brand Creation';
+                    loadingMsg.style.display = 'none';
+                }
+            } catch (error) {
+                alert('Error starting workflow: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Start Brand Creation';
+                loadingMsg.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

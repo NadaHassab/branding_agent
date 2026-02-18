@@ -1,0 +1,47 @@
+﻿python : Traceback (most recent call last):
+At line:1 char:1
++ python run_production.py 2>&1 | Out-File -FilePath production_output. ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last) 
+   ::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "C:\Users\NadaH\Downloads\brand_agent\run_production.py", line 80, in 
+run_production_brand_system
+    state_after_research = research_agent(initial_state)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\NadaH\Downloads\brand_agent\agents\research_agent.py", line 
+21, in research_agent
+    print("\U0001f575\ufe0f [RESEARCH AGENT] Starting research phase...")
+  File "C:\Users\NadaH\AppData\Local\Packages\PythonSoftwareFoundation.Python.3
+.11_qbz5n2kfra8p0\LocalCache\local-packages\Python311\site-packages\crewai\llm.
+py", line 141, in write
+    return self._original_stream.write(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.11_3.11.
+2544.0_x64__qbz5n2kfra8p0\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 0-1: 
+character maps to <undefined>
+
+Production Run Started: 2026-02-14 14:31:57
+
+====================================================================================================
+                         PRODUCTION BRAND GUIDELINES GENERATOR
+                              Following CEEM PDF Structure
+====================================================================================================
+
+[CLIENT] DermAI - AI Skincare Advisor App
+[USP] 100% UNBIASED - Customer-first, No brand affiliations
+[OUTPUT] Professional Brand Guidelines Document (DOCX)
+
+====================================================================================================
+
+[1/4] RESEARCH AGENT - Market Analysis & Competitor Research
+----------------------------------------------------------------------------------------------------
+
+[ERROR] Production pipeline failed
+[DETAILS] 'charmap' codec can't encode characters in position 0-1: character maps to <undefined>
+
+[FAILED] Production run encountered errors. Check logs above.

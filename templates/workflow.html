@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Progress - Brand Agent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎨 Brand Creation in Progress</h1>
+            <p>Workflow ID: <code>{{ workflow_id }}</code></p>
+        </header>
+
+        <div class="progress-section">
+            <h2>Progress</h2>
+            <div class="status-indicator" id="statusIndicator">
+                <div class="spinner"></div>
+                <span id="statusText">Initializing...</span>
+            </div>
+
+            <div class="steps-container">
+                <div class="step" id="step-research">
+                    <div class="step-icon">🕵️</div>
+                    <div class="step-content">
+                        <h3>Research Phase</h3>
+                        <p>Analyzing market and competitors</p>
+                    </div>
+                    <div class="step-status" id="status-research">⏳</div>
+                </div>
+
+                <div class="step" id="step-strategy">
+                    <div class="step-icon">🧠</div>
+                    <div class="step-content">
+                        <h3>Strategy Development</h3>
+                        <p>Creating brand positioning and messaging</p>
+                    </div>
+                    <div class="step-status" id="status-strategy">⏳</div>
+                </div>
+
+                <div class="step" id="step-design">
+                    <div class="step-icon">🎨</div>
+                    <div class="step-content">
+                        <h3>Visual Identity</h3>
+                        <p>Generating logo concepts and colors</p>
+                    </div>
+                    <div class="step-status" id="status-design">⏳</div>
+                </div>
+
+                <div class="step" id="step-deliverables">
+                    <div class="step-icon">📦</div>
+                    <div class="step-content">
+                        <h3>Deliverables</h3>
+                        <p>Compiling final documents</p>
+                    </div>
+                    <div class="step-status" id="status-deliverables">⏳</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategy Approval Section -->
+        <div id="approvalSection" class="approval-section" style="display: none;">
+            <h2>⏸️ Strategy Review Required</h2>
+            <p>Please review the generated strategy before proceeding to design phase.</p>
+            
+            <div class="strategy-preview" id="strategyPreview">
+                <!-- Strategy content will be inserted here -->
+            </div>
+
+            <button id="approveBtn" class="approve-btn">
+                ✅ Approve Strategy & Continue to Design
+            </button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <h2>✅ Brand Strategy Complete!</h2>
+            
+            <div class="results-grid">
+                <div class="result-card" id="researchCard" style="display: none;">
+                    <h3>🕵️ Research Insights</h3>
+                    <div id="researchContent"></div>
+                </div>
+
+                <div class="result-card" id="strategyCard" style="display: none;">
+                    <h3>🧠 Brand Strategy</h3>
+                    <div id="strategyContent"></div>
+                </div>
+
+                <div class="result-card" id="designCard" style="display: none;">
+                    <h3>🎨 Visual Identity</h3>
+                    <div id="designContent"></div>
+                </div>
+            </div>
+
+            <div class="download-section" id="downloadSection" style="display: none;">
+                <h3>📥 Download Deliverables</h3>
+                <div class="download-buttons">
+                    <a href="/download/{{ workflow_id }}/strategy" class="download-btn" download>
+                        📄 Strategy Document (DOCX)
+                    </a>
+                    <a href="/download/{{ workflow_id }}/guidelines" class="download-btn" download>
+                        📋 Brand Guidelines (PDF)
+                    </a>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/" class="secondary-btn">← Create Another Brand</a>
+            </div>
+        </div>
+
+        <!-- Error Section -->
+        <div id="errorSection" class="error-section" style="display: none;">
+            <h2>❌ Error Occurred</h2>
+            <p id="errorMessage"></p>
+            <a href="/" class="secondary-btn">← Go Back</a>
+        </div>
+    </div>
+
+    <script>
+        const workflowId = '{{ workflow_id }}';
+        let pollInterval;
+
+        async function checkStatus() {
+            try {
+                const response = await fetch(`/workflow_status/${workflowId}`);
+                const data = await response.json();
+
+                updateUI(data);
+
+                // Stop polling if workflow is complete or error
+                if (data.status === 'completed' || data.status === 'error') {
+                    clearInterval(pollInterval);
+                }
+            } catch (error) {
+                console.error('Error checking status:', error);
+            }
+        }
+
+        function updateUI(data) {
+            const statusText = document.getElementById('statusText');
+            const statusIndicator = document.getElementById('statusIndicator');
+
+            // Update status text
+            if (data.status === 'running') {
+                statusText.textContent = `Running: ${data.current_step || 'initializing'}...`;
+            } else if (data.status === 'research_complete') {
+                statusText.textContent = 'Research completed, starting strategy...';
+            } else if (data.status === 'awaiting_approval') {
+                statusText.textContent = 'Strategy ready for review';
+                statusIndicator.querySelector('.spinner').style.display = 'none';
+                showApprovalSection(data.strategy_outputs);
+            } else if (data.status === 'continuing') {
+                statusText.textContent = 'Strategy approved, continuing to design...';
+                hideApprovalSection();
+            } else if (data.status === 'design_complete') {
+                statusText.textContent = 'Design completed, generating deliverables...';
+            } else if (data.status === 'completed') {
+                statusText.textContent = 'All done! ✨';
+                statusIndicator.querySelector('.spinner').style.display = 'none';
+                showResults(data);
+            } else if (data.status === 'error') {
+                statusText.textContent = 'Error occurred';
+                statusIndicator.querySelector('.spinner').style.display = 'none';
+                showError(data.error);
+            }
+
+            // Update step indicators
+            updateStepStatus('research', data.completed_steps);
+            updateStepStatus('strategy', data.completed_steps);
+            updateStepStatus('design_identity', data.completed_steps);
+            updateStepStatus('deliverables', data.completed_steps);
+        }
+
+        function updateStepStatus(stepName, completedSteps) {
+            const statusEl = document.getElementById(`status-${stepName === 'design_identity' ? 'design' : stepName}`);
+            const stepEl = document.getElementById(`step-${stepName === 'design_identity' ? 'design' : stepName}`);
+            
+            if (completedSteps && completedSteps.includes(stepName)) {
+                statusEl.textContent = '✅';
+                stepEl.classList.add('completed');
+            }
+        }
+
+        function showApprovalSection(strategyOutputs) {
+            const section = document.getElementById('approvalSection');
+            const preview = document.getElementById('strategyPreview');
+            
+            if (strategyOutputs) {
+                let html = '<div class="strategy-details">';
+                
+                if (strategyOutputs.positioning) {
+                    html += `<div class="detail-item">
+                        <strong>Positioning:</strong>
+                        <p>${strategyOutputs.positioning}</p>
+                    </div>`;
+                }
+                
+                if (strategyOutputs.personality && strategyOutputs.personality.length > 0) {
+                    html += `<div class="detail-item">
+                        <strong>Brand Personality:</strong>
+                        <ul>${strategyOutputs.personality.map(p => `<li>${p}</li>`).join('')}</ul>
+                    </div>`;
+                }
+                
+                if (strategyOutputs.messaging_framework) {
+                    html += `<div class="detail-item">
+                        <strong>Messaging Framework:</strong>
+                        <ul>`;
+                    for (const [key, value] of Object.entries(strategyOutputs.messaging_framework)) {
+                        html += `<li><strong>${key}:</strong> ${value}</li>`;
+                    }
+                    html += `</ul></div>`;
+                }
+                
+                html += '</div>';
+                preview.innerHTML = html;
+            }
+            
+            section.style.display = 'block';
+        }
+
+        function hideApprovalSection() {
+            document.getElementById('approvalSection').style.display = 'none';
+        }
+
+        function showResults(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            resultsSection.style.display = 'block';
+
+            // Show research
+            if (data.research_outputs) {
+                document.getElementById('researchCard').style.display = 'block';
+                document.getElementById('researchContent').innerHTML = `
+                    <p><strong>Market Analysis:</strong> ${JSON.stringify(data.research_outputs.market_analysis, null, 2)}</p>
+                `;
+            }
+
+            // Show strategy
+            if (data.strategy_outputs) {
+                document.getElementById('strategyCard').style.display = 'block';
+                document.getElementById('strategyContent').innerHTML = `
+                    <p><strong>Positioning:</strong> ${data.strategy_outputs.positioning}</p>
+                    <p><strong>Personality:</strong> ${data.strategy_outputs.personality.join(', ')}</p>
+                `;
+            }
+
+            // Show design
+            if (data.design_outputs) {
+                document.getElementById('designCard').style.display = 'block';
+                let designHtml = `<p><strong>Color Palette:</strong> ${data.design_outputs.color_palette.join(', ')}</p>`;
+                if (data.design_outputs.logo_concepts) {
+                    designHtml += `<p><strong>Logo Concepts:</strong></p><ul>`;
+                    data.design_outputs.logo_concepts.forEach(concept => {
+                        designHtml += `<li>${concept}</li>`;
+                    });
+                    designHtml += `</ul>`;
+                }
+                document.getElementById('designContent').innerHTML = designHtml;
+            }
+
+            // Show download section
+            if (data.deliverables) {
+                document.getElementById('downloadSection').style.display = 'block';
+            }
+        }
+
+        function showError(errorMsg) {
+            document.getElementById('errorSection').style.display = 'block';
+            document.getElementById('errorMessage').textContent = errorMsg;
+        }
+
+        // Approve strategy button
+        document.getElementById('approveBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('approveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Approving...';
+
+            try {
+                const response = await fetch(`/approve_strategy/${workflowId}`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    hideApprovalSection();
+                    document.getElementById('statusText').textContent = 'Continuing to design phase...';
+                    document.querySelector('.spinner').style.display = 'block';
+                } else {
+                    alert('Error approving strategy: ' + result.error);
+                    btn.disabled = false;
+                    btn.textContent = '✅ Approve Strategy & Continue to Design';
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+                btn.disabled = false;
+                btn.textContent = '✅ Approve Strategy & Continue to Design';
+            }
+        });
+
+        // Start polling for status updates
+        pollInterval = setInterval(checkStatus, 2000);
+        checkStatus(); // Initial check
+    </script>
+</body>
+</html>
