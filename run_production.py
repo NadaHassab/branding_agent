@@ -1,14 +1,12 @@
 """
 PRODUCTION BRAND GUIDELINES GENERATOR
-Following CEEM GUIDELINES (2).pdf structure exactly
-For: DermAI - Unbiased AI Skincare Advisor App
 """
 from state import BrandState
 from agents.research_agent import research_agent
 from agents.strategy_agent import strategy_agent
 from agents.design_agent import design_agent
 from agents.deliverables_agent import deliverables_agent
-from skincare_brief import SKINCARE_APP_BRIEF
+from client_brief import CLIENT_BRIEF
 import json
 import os
 from datetime import datetime
@@ -45,12 +43,11 @@ def run_production_brand_system():
     
     print("=" * 100)
     print(" " * 25 + "PRODUCTION BRAND GUIDELINES GENERATOR")
-    print(" " * 30 + "Following CEEM PDF Structure")
     print("=" * 100)
     print()
     
-    print("[CLIENT] DermAI - AI Skincare Advisor App")
-    print("[USP] 100% UNBIASED - Customer-first, No brand affiliations")
+    print(f"[CLIENT] {CLIENT_BRIEF.get('company_name', 'Client')} - {CLIENT_BRIEF.get('industry', '')}")
+    print(f"[AUDIENCE] {CLIENT_BRIEF.get('target_audience', 'N/A')}")
     print("[OUTPUT] Professional Brand Guidelines Document (DOCX)")
     print()
     print("=" * 100)
@@ -59,7 +56,7 @@ def run_production_brand_system():
     # Initialize state with production settings
     initial_state = BrandState(
         messages=[],
-        client_brief=SKINCARE_APP_BRIEF,
+        client_brief=CLIENT_BRIEF,
         research_outputs=None,
         strategy_outputs=None,
         design_outputs=None,

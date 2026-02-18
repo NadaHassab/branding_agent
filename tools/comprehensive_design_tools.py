@@ -251,7 +251,7 @@ def generate_brand_applications(brand_info: Dict) -> Dict:
 
 
 @tool  
-def generate_scientific_color_palette(mood: str, industry: str = "skincare") -> Dict:
+def generate_scientific_color_palette(mood: str, industry: str = "general") -> Dict:
     """
     Generates professional color palette with primary and secondary colors.
     
@@ -263,7 +263,7 @@ def generate_scientific_color_palette(mood: str, industry: str = "skincare") -> 
     print(f"   Industry: {industry}")
     
     # Scientific/Healthcare color palettes
-    if "scientific" in mood.lower() or "medical" in mood.lower() or "skincare" in industry.lower():
+    if "scientific" in mood.lower() or "medical" in mood.lower() or "healthcare" in industry.lower():
         return {
             "primary_colors": {
                 "brand_primary": "#2D5F8D",  # Trustworthy blue

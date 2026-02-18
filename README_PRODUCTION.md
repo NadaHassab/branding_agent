@@ -1,10 +1,7 @@
-# DermAI Brand Guidelines - Production System
+# Brand Guidelines - Production System
 
 ## Overview
-Professional brand identity system for DermAI - an unbiased AI-powered skincare advisor app targeting females 18-35.
-
-## Key Differentiator
-**100% UNBIASED** - No brand sponsorships, no affiliations, pure customer-first recommendations based on AI skin analysis and budget.
+Professional brand identity system powered by a multi-agent AI pipeline. Generates complete brand guidelines documents for any client brief.
 
 ## System Architecture
 
@@ -122,7 +119,7 @@ Rate limits: Increased per user request
 
 ### Serper API (CrewAI Search)
 ```python
-SERPER_API_KEY = "9286dd24f4e436dd602d4547098f81d0ff838aae"
+SERPER_API_KEY = os.getenv("SERPER_API_KEY")
 ```
 Free tier: 2500 searches/month
 
@@ -134,7 +131,7 @@ brand_agent/
 ├── state.py                           # Pydantic state definitions
 ├── schemas.py                         # Structured output schemas
 ├── main_orchestrator.py               # LangGraph workflow
-├── skincare_brief.py                  # DermAI brand brief
+├── client_brief.py                    # Client brand brief (fill this in)
 ├── agents/
 │   ├── research_agent.py              # Market/competitor research
 │   ├── strategy_agent.py              # Brand positioning
@@ -149,10 +146,12 @@ brand_agent/
 ├── output/
 │   ├── Brand_Strategy.docx            # GENERATED
 │   └── Comprehensive_Brand_Guidelines.docx  # GENERATED
-├── CEEM GUIDELINES (2).pdf            # Template reference
-├── test_skincare_comprehensive.py     # Full system test
-├── run_production.py                  # NEW: Production runner
-└── README_PRODUCTION.md               # This file
+├── tests/
+│   ├── test_api_connection.py         # API connectivity tests
+│   ├── test_apis.py                   # API unit tests
+│   ├── test_demo.py                   # Demo run test
+│   ├── test_full_system.py            # Full pipeline test
+│   └── test_production.py             # Production smoke test
 ```
 
 ## Running the System
@@ -164,14 +163,14 @@ python run_production.py
 
 ### Test Mode
 ```powershell
-python test_skincare_comprehensive.py
+python tests/test_production.py
 ```
 
 ### What Happens:
-1. **Research Agent**: Searches competitors in "AI-Powered Skincare Technology"
-2. **Strategy Agent**: Generates positioning emphasizing unbiased, customer-first approach
+1. **Research Agent**: Searches competitors in the client's industry
+2. **Strategy Agent**: Generates brand positioning and messaging framework
 3. **Design Agent**: Creates comprehensive visual identity (6 logos, colors, typography, grid, 5 applications)
-4. **Deliverables Agent**: Generates professional DOCX documents following CEEM structure
+4. **Deliverables Agent**: Generates professional DOCX documents
 
 ## Output Files
 
@@ -216,82 +215,12 @@ curl -H "Authorization: Bearer $env:POYO_API_KEY" https://api.poyo.ai/task/{task
 - Can retrieve images later when rate limit resets
 - User increased rate limit for production use
 
-## Brand Brief Summary
-
-### DermAI - AI Skincare Advisor
-
-**Target**: Health-conscious females 18-35, tech-savvy
-
-**Core Values**:
-- Scientific Accuracy
-- Personalization  
-- Trustworthiness
-- Innovation
-- Accessibility
-
-**Mission**: Empowering women to make informed, unbiased skincare decisions through AI-powered analysis
-
-**Unique Value Proposition**: The ONLY truly unbiased AI skincare advisor - not paid by brands, recommendations based purely on skin analysis and budget
-
-**Brand Differentiators**:
-1. 100% Brand Agnostic - No sponsorships, no affiliations
-2. Customer-First Algorithm - Recommendations based on YOUR skin only
-3. Transparent Science - Clear explanations
-4. Budget Democracy - Best products at ANY price point
-5. No Hidden Agenda - Revenue from subscriptions, not brand kickbacks
-
-**Key Features**:
-- AI-Powered Photo Skin Analysis (Gemini AI)
-- Text-based symptom analysis
-- Personalized routines (Morning/Evening)
-- Smart product recommendations within budget
-- Ingredient compatibility checking
-- Product comparison tools
-- AI Chat Expert for guidance
-- Progress tracking with visual records
-- Pharmacy locator
-
-**Competitors**: 
-- lovi.care
-- skinsyncapp.ai  
-- getskinbliss.com
-- SkinSync
-- SkinBliss
-- Curology
-- Prose
-
-## Design Direction
-
-### Wordmark
-Modern sans-serif with clean, geometric letterforms. Slightly rounded corners for balance between professionalism and approachability. Lowercase or mixed case for warmth.
-
-### Icon
-Abstract interpretation of skin cell structure or molecular pattern. Interconnected geometric elements symbolizing scientific precision + personalization. Simplified enough to work at small sizes (app icons).
-
-### Mood
-Clean minimalism meets scientific precision. Soft gradients, crisp white spaces, subtle geometric patterns. Professional healthcare aesthetic with modern tech sensibility. Feminine but not overly girly.
-
-### Colors
-Primary: Scientific blues/teals (trust, precision)
-Secondary: Soft pinks/corals (feminine, skin-tone friendly), greens (health, natural)
-Accent: Warm amber/coral (attention, warmth)
-
-### Typography
-- Primary: Poppins/Inter/Montserrat (modern, geometric, clean)
-- Secondary: Source Sans Pro/Open Sans/Lato (readable, professional)
-
-### Visual Avoidance
-- Egyptian themes
-- Heavy luxury aesthetics
-- Overly decorative elements
-- Dated beauty tropes
-
 ## Customization
 
 ### Updating Brand Brief
-Edit `skincare_brief.py`:
+Edit `client_brief.py`:
 ```python
-SKINCARE_APP_BRIEF = {
+CLIENT_BRIEF = {
     "company_name": "Your Brand",
     "industry": "Your Industry",
     # ... customize all fields
@@ -343,10 +272,8 @@ For questions or issues:
 - Check terminal output for detailed logs
 - Review error messages in context
 - Verify API keys and quotas
-- Test with `test_skincare_comprehensive.py` first
+- Test with tests in the `tests/` folder first
 
 ---
 
-**Generated**: February 14, 2026  
-**System Version**: 1.0 - Production  
-**Template**: CEEM GUIDELINES (2).pdf
+**System Version**: 1.0 - Production
